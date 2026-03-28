@@ -1,34 +1,32 @@
 import { useRef } from 'react';
 
 export default function TiltCard({ children, className = '' }) {
-  const cardRef = useRef(null);
+  const ref = useRef(null);
 
-  const handleMouseMove = (e) => {
-    const card = cardRef.current;
-    if (!card) return;
-    const rect = card.getBoundingClientRect();
+  const onMove = (e) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -8;
-    const rotateY = ((x - centerX) / centerX) * 8;
-    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02,1.02,1.02)`;
+    const rx = ((y - rect.height / 2) / rect.height) * -10;
+    const ry = ((x - rect.width / 2) / rect.width) * 10;
+    el.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.02,1.02,1.02)`;
   };
 
-  const handleMouseLeave = () => {
-    const card = cardRef.current;
-    if (!card) return;
-    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+  const onLeave = () => {
+    if (ref.current)
+      ref.current.style.transform =
+        'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
   };
 
   return (
     <div
-      ref={cardRef}
+      ref={ref}
       className={className}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ transition: 'transform 0.15s ease', willChange: 'transform' }}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      style={{ transition: 'transform 0.18s ease', willChange: 'transform' }}
     >
       {children}
     </div>

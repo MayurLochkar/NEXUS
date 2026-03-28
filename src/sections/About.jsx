@@ -1,220 +1,201 @@
-import { useEffect, useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, Stars, PerspectiveCamera, Environment, Sparkles } from '@react-three/drei';
+/**
+ * About.jsx
+ * DEPS: npm install three gsap @react-three/fiber @react-three/drei
+ */
+import { useEffect, useRef } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Stars, Sparkles, PerspectiveCamera, Environment } from '@react-three/drei';
+import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import * as THREE from 'three';
+import useWebGL from './useWebGL';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// =========================================================================
-// THE CYBER-SOLDIER (3D Model with Gun)
-// =========================================================================
+// ─── Animated Soldier ─────────────────────────────────────────────────────────
 function AnimatedSoldier({ progressRef }) {
-  const group = useRef();
-  const gunRef = useRef();
-
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-    if (group.current) {
-      // Combat Idle: Floating and subtle rotation
-      group.current.position.y = Math.sin(t * 1.2) * 0.15;
-
-      // SCROLL ANIMATION: Character slides and rotates based on scroll progress
-      // Progress 0 to 1 comes from ScrollTrigger
-      const p = progressRef.current;
-      group.current.rotation.y = -Math.PI / 3 + (p * Math.PI / 1.5);
-      group.current.position.x = 3 - (p * 2);
-    }
-
-    if (gunRef.current) {
-      // Weapon sway
-      gunRef.current.rotation.x = (Math.PI / 2) + Math.sin(t * 2.5) * 0.04;
-    }
-  });
-
-  return (
-    <group ref={group} position={[2.5, -1.5, 0]} scale={2}>
-      {/* Mecha Head */}
-      <mesh position={[0, 1.4, 0]}>
-        <boxGeometry args={[0.5, 0.5, 0.5]} />
-        <meshStandardMaterial color="#0a0a0a" metalness={1} roughness={0.1} />
-      </mesh>
-
-      {/* Glowing Tactical Visor */}
-      <mesh position={[0, 1.45, 0.26]}>
-        <boxGeometry args={[0.42, 0.12, 0.05]} />
-        <meshStandardMaterial color="#FF003C" emissive="#FF003C" emissiveIntensity={12} />
-      </mesh>
-
-      {/* Heavy Armor Torso */}
-      <mesh position={[0, 0.6, 0]}>
-        <boxGeometry args={[0.75, 1.3, 0.45]} />
-        <meshStandardMaterial color="#050505" metalness={0.8} />
-      </mesh>
-
-      {/* Cyber Core (Cyan) */}
-      <mesh position={[0, 0.8, 0.22]}>
-        <sphereGeometry args={[0.15, 16, 16]} />
-        <meshStandardMaterial color="#00F0FF" emissive="#00F0FF" emissiveIntensity={8} />
-      </mesh>
-
-      {/* PLASMA RIFLE */}
-      <group ref={gunRef} position={[0.4, 0.6, 0.5]} rotation={[Math.PI / 2, 0, 0.2]}>
-        <mesh>
-          <boxGeometry args={[0.18, 1.4, 0.3]} />
-          <meshStandardMaterial color="#000" />
-        </mesh>
-        <mesh position={[0, -0.9, 0]}>
-          <cylinderGeometry args={[0.04, 0.04, 1]} />
-          <meshStandardMaterial color="#00F0FF" emissive="#00F0FF" emissiveIntensity={15} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
-// =========================================================================
-// MAIN ABOUT COMPONENT
-// =========================================================================
-export default function About() {
-  const secRef = useRef(null);
-  const barTop = useRef(null);
-  const barBot = useRef(null);
-  const contentScope = useRef(null);
-
-  // Ref to store scroll progress for Three.js without triggering re-renders
-  const progress = useRef(0);
+  const { scene } = useThree();
+  const soldierRef = useRef(null);
+  const gunRef = useRef(null);
+  const visorRef = useRef([]);
+  const timeRef = useRef(0);
 
   useEffect(() => {
-    // GSAP Context ensures selectors like ".about-anim" are found ONLY inside secRef
-    let ctx = gsap.context(() => {
+    const M = (hex, opts = {}) => new THREE.MeshStandardMaterial({ color: hex, ...opts });
+    const ME = (hex, i = 4) => new THREE.MeshStandardMaterial({ color: hex, emissive: new THREE.Color(hex), emissiveIntensity: i, toneMapped: false });
+    const Box = (g, w, h, d, mat, x, y, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); g.add(m); return m; };
+    const Cyl = (g, rt, rb, h, s, mat, x, y, z, rx = 0, ry = 0, rz = 0) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, s), mat); m.position.set(x, y, z); m.rotation.set(rx, ry, rz); g.add(m); return m; };
+    const Sph = (g, r, mat, x, y, z) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 16), mat); m.position.set(x, y, z); g.add(m); return m; };
 
-      // 1. Cinematic Black Bars Reveal
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: secRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        }
-      });
+    const sg = new THREE.Group();
+    sg.position.set(-2.8, -1.5, 0); sg.rotation.y = Math.PI / 5;
+    scene.add(sg); soldierRef.current = sg;
 
-      tl.to(barTop.current, { yPercent: -100, duration: 0.8, ease: 'expo.inOut' })
-        .to(barBot.current, { yPercent: 100, duration: 0.8, ease: 'expo.inOut' }, '<');
+    // Head
+    Box(sg, .5, .5, .5, M(0x0a0a0a, { metalness: 1 }), 0, 1.4, 0);
+    Box(sg, .52, .14, .14, M(0x0c0c1e, { metalness: .9 }), 0, 1.62, .3);
+    Box(sg, .42, .12, .05, ME(0xFF003C, 10), 0, 1.45, .26);
+    // Neck
+    Cyl(sg, .13, .16, .22, 8, M(0x080810, { metalness: .9 }), 0, 1.62, 0);
+    // Torso
+    Cyl(sg, .52, .38, 1.15, 8, M(0x080810, { metalness: .92 }), 0, .9, 0);
+    Box(sg, .58, .65, .14, M(0x0b0b1c, { metalness: .88 }), 0, .98, .28);
+    Box(sg, .06, .52, .09, ME(0x00F0FF, 2.2), -.2, .96, .34);
+    Box(sg, .06, .52, .09, ME(0x00F0FF, 2.2), .2, .96, .34);
+    Box(sg, .18, .05, .1, ME(0x00F0FF, 1.8), 0, 1.16, .34);
+    // Shoulders
+    Cyl(sg, .18, .15, .65, 8, M(0x080810, { metalness: .88 }), -.78, .72, 0);
+    Cyl(sg, .18, .15, .65, 8, M(0x080810, { metalness: .88 }), .78, .72, 0);
+    // Earpiece
+    Sph(sg, .072, ME(0x00F0FF, 3.5), -.5, 1.42, -.08);
+    // Legs
+    [-.24, .24].forEach(x => {
+      Cyl(sg, .24, .19, .72, 8, M(0x080810, { metalness: .88 }), x, -.22, 0);
+      Box(sg, .22, .06, .28, ME(0x00F0FF, 1.4), x, -.1, .15);
+    });
+    // Gun
+    const gg = new THREE.Group(); gg.position.set(.44, .6, .48); gg.rotation.set(Math.PI / 2, 0, .2);
+    Box(gg, .18, 1.4, .3, M(0x000), 0, 0, 0);
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, 1), ME(0x00F0FF, 15));
+    barrel.position.set(0, -.9, 0); gg.add(barrel);
+    sg.add(gg); gunRef.current = gg;
 
-      // 2. Track Scroll Progress for the 3D Character
+    return () => { scene.remove(sg); sg.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); };
+  }, [scene]);
+
+  useFrame((_, delta) => {
+    timeRef.current += delta;
+    const t = timeRef.current; const sg = soldierRef.current;
+    if (!sg) return;
+    sg.position.y = -1.5 + Math.sin(t * 1.2) * .15;
+    const p = progressRef.current || 0;
+    sg.rotation.y = Math.PI / 5 - (p * Math.PI / 2);
+    sg.position.x = -2.8 + (p * 1.8);
+    if (gunRef.current) gunRef.current.rotation.x = (Math.PI / 2) + Math.sin(t * 2.5) * .04;
+  });
+  return null;
+}
+
+export default function About() {
+  const secRef = useRef(null);
+  const canvasRef = useRef(null);
+  const barTop = useRef(null);
+  const barBot = useRef(null);
+  const contentRef = useRef(null);
+  const progress = useRef(0);
+
+  useWebGL(canvasRef, { particleCount: 700, hexCount: 9, lineCount: 14, particleColor: 0x00f0ff, accentColor: 0xff003c });
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Cinematic bars
+      gsap.timeline({
+        scrollTrigger: { trigger: secRef.current, start: 'top 80%', toggleActions: 'play none none reverse' }
+      })
+        .to(barTop.current, { yPercent: -100, duration: 1, ease: 'expo.inOut' })
+        .to(barBot.current, { yPercent: 100, duration: 1, ease: 'expo.inOut' }, '<');
+
+      // Scroll progress for 3D
       ScrollTrigger.create({
-        trigger: secRef.current,
-        start: 'top bottom',
-        end: 'bottom top',
-        onUpdate: (self) => {
-          progress.current = self.progress;
-        }
+        trigger: secRef.current, start: 'top bottom', end: 'bottom top',
+        onUpdate: self => { progress.current = self.progress; }
       });
 
-      // 3. Text Reveal Animation (Fixed selector issue)
-      if (document.querySelectorAll('.about-reveal').length > 0) {
-        gsap.from('.about-reveal', {
-          scrollTrigger: {
-            trigger: contentScope.current,
-            start: 'top 75%',
-          },
-          x: -60,
-          opacity: 0,
-          duration: 1.2,
-          stagger: 0.2,
-          ease: 'power4.out'
-        });
-      }
+      // Text stagger
+      gsap.from('.about-reveal', {
+        scrollTrigger: { trigger: contentRef.current, start: 'top 75%' },
+        y: 44, opacity: 0, duration: 1, stagger: .14, ease: 'power4.out'
+      });
 
-      // 4. Stat Cards Scale-up
+      // Stats pop
       gsap.from('.stat-card-box', {
-        scrollTrigger: {
-          trigger: contentScope.current,
-          start: 'top 65%',
-        },
-        scale: 0.5,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'back.out(1.7)',
-        delay: 0.4
+        scrollTrigger: { trigger: contentRef.current, start: 'top 70%' },
+        y: 22, opacity: 0, scale: .88, duration: .8, stagger: .1, ease: 'back.out(1.7)', delay: .4
       });
-
-    }, secRef); // Scope everything to secRef
-
+    }, secRef);
     return () => ctx.revert();
   }, []);
 
   return (
-    <section
-      id="about"
-      ref={secRef}
-      className="relative w-full min-h-screen py-24 px-6 md:px-12 bg-[#010103] overflow-hidden flex items-center"
-    >
+    <section id="about" ref={secRef} className="relative w-full min-h-screen py-32 px-6 md:px-12 bg-[#010103] overflow-hidden flex items-center">
 
-      {/* 1. THREE.JS LAYER (Animated Character) */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
+      {/* WebGL bg */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 pointer-events-none" />
+
+      {/* R3F soldier */}
+      <div className="absolute inset-0 z-[1] pointer-events-none">
         <Canvas dpr={[1, 2]}>
           <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={40} />
           <ambientLight intensity={1} />
           <pointLight position={[10, 10, 10]} color="#FF003C" intensity={5} />
           <pointLight position={[-10, -5, 5]} color="#00F0FF" intensity={3} />
-
-          <Stars radius={100} depth={50} count={3000} factor={4} fade speed={1} />
-          <Sparkles count={80} scale={10} size={2} color="#00F0FF" />
-
+          <Stars radius={100} depth={50} count={2000} factor={4} fade speed={1} />
+          <Sparkles count={60} scale={10} size={2} color="#00F0FF" />
           <AnimatedSoldier progressRef={progress} />
           <Environment preset="night" />
         </Canvas>
       </div>
 
-      {/* 2. CINEMATIC BARS LAYER */}
-      <div ref={barTop} className="absolute top-0 left-0 w-full h-[50.5vh] bg-black z-[100] border-b border-cyber-cyan/20" />
-      <div ref={barBot} className="absolute bottom-0 left-0 w-full h-[50.5vh] bg-black z-[100] border-t border-cyber-pink/20" />
+      {/* Cinematic bars */}
+      <div ref={barTop} className="absolute top-0 left-0 w-full h-[50.5vh] bg-black z-[50] border-b border-[rgba(0,240,255,0.1)]" />
+      <div ref={barBot} className="absolute bottom-0 left-0 w-full h-[50.5vh] bg-black z-[50] border-t border-[rgba(255,0,60,0.1)]" />
 
-      {/* 3. CONTENT UI LAYER */}
-      <div ref={contentScope} className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
+      {/* Content */}
+      <div ref={contentRef} className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className="max-w-2xl">
+
           {/* Tagline */}
-          <div className="about-reveal flex items-center gap-4 mb-8">
-            <span className="font-mono text-xs text-cyber-pink tracking-[0.4em] font-bold uppercase tracking-tighter shadow-sm">
-              // Neural_Link_Active
+          <div className="about-reveal flex items-center gap-3 mb-10">
+            <span className="font-mono text-[10px] text-[#00F0FF] bg-[rgba(0,240,255,.05)] border border-[rgba(0,240,255,.2)] px-3 py-1 tracking-[0.4em] font-bold uppercase">
+              // CORE_MISSION: ESTABLISHED
             </span>
-            <div className="flex-1 h-[1px] bg-gradient-to-r from-cyber-pink/50 to-transparent" />
+            <div className="flex-1 h-[1px] bg-gradient-to-r from-[rgba(0,240,255,.3)] to-transparent" />
           </div>
 
           {/* Heading */}
-          <h2 className="about-reveal font-orbitron font-black text-white leading-[0.95] mb-8 uppercase" style={{ fontSize: 'clamp(40px, 7vw, 90px)' }}>
-            The <span className="text-cyber-cyan drop-shadow-[0_0_20px_#00F0FF]">Grid</span><br />
-            <span className="text-transparent" style={{ WebkitTextStroke: '2px #FF003C', filter: 'drop-shadow(0 0 10px #FF003C)' }}>Anomaly</span>
+          <h2 className="about-reveal font-orbitron font-black leading-[0.9] mb-10 uppercase select-none" style={{ fontSize: 'clamp(44px,8vw,100px)' }}>
+            <span className="text-white">THE </span>
+            <span style={{ color: '#00F0FF', filter: 'drop-shadow(0 0 25px rgba(0,240,255,0.4))' }}>GRID </span>
+            <br />
+            <span style={{ color: 'transparent', WebkitTextStroke: '2px #FF003C', filter: 'drop-shadow(0 0 12px rgba(255,0,60,0.4))' }}>
+              ANOMALY
+            </span>
           </h2>
 
-          {/* Lore Text */}
-          <p className="about-reveal font-inter text-gray-400 text-lg md:text-xl leading-relaxed mb-10 border-l-4 border-cyber-cyan pl-6 py-2 bg-white/5 backdrop-blur-md rounded-r-lg">
-            NEXUS is the system override. A hyper-immersive, decentralized battleground where elite agents unite to rewrite the digital frontier.
-            <span className="text-white block mt-2 opacity-80">48 Hours. No Limits. Zero Mercy.</span>
-          </p>
+          {/* Lore text */}
+          <div className="about-reveal relative mb-12">
+            <div className="absolute left-0 top-0 w-1 h-full" style={{ background: 'linear-gradient(180deg,#00F0FF,#FF003C)' }} />
+            <p className="font-inter text-gray-400 text-lg md:text-xl leading-relaxed pl-8">
+              Legacy hackathons are bloated relics of the past.
+              <span className="text-white font-bold px-1">NEXUS</span> is the system override—a decentralized arena for elite architects to build, deploy, and dominate the digital frontier.
+              <br />
+              <span className="font-mono text-sm text-[#00F0FF] mt-4 block tracking-widest uppercase font-bold">
+                {'>'} STATUS: SYSTEM_CRITICAL // NO_EXIT_FOUND
+              </span>
+            </p>
+          </div>
 
-          {/* Stats Row */}
+          {/* Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 about-reveal">
             {[
               { val: 'JUL 25', label: 'IGNITION', col: '#00F0FF' },
-              { val: 'GLOBAL', label: 'SCALE', col: '#FF003C' },
-              { val: 'WEB3', label: 'CORE', col: '#FFE600' },
-              { val: '48H', label: 'LIMIT', col: '#00FF88' },
-            ].map((s) => (
-              <div key={s.label} className="stat-card-box p-4 bg-black/80 border border-white/10 rounded-sm hover:border-cyber-cyan/40 transition-all text-center group">
-                <div className="font-orbitron font-black text-xl mb-1 group-hover:scale-110 transition-transform" style={{ color: s.col, textShadow: `0 0 10px ${s.col}80` }}>{s.val}</div>
-                <div className="font-mono text-[9px] text-gray-600 tracking-widest uppercase">{s.label}</div>
+              { val: 'GLOBAL', label: 'CONNECT', col: '#FF003C' },
+              { val: 'WEB3', label: 'LAYER', col: '#FFE600' },
+              { val: '48HRS', label: 'EXECUTE', col: '#00FF88' },
+            ].map(s => (
+              <div key={s.label} className="stat-card-box group relative p-5 bg-white/[0.02] border border-white/10 backdrop-blur-md rounded-sm transition-all duration-500 hover:bg-white/[0.05] hover:border-white/20">
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500" style={{ background: s.col }} />
+                <div className="relative z-10 font-orbitron font-black text-2xl mb-1 tracking-tighter" style={{ color: s.col, textShadow: `0 0 10px ${s.col}50` }}>
+                  {s.val}
+                </div>
+                <div className="relative z-10 font-mono text-[9px] text-gray-500 tracking-[0.2em] font-bold uppercase">
+                  {s.label}
+                </div>
               </div>
             ))}
           </div>
         </div>
-
       </div>
-
     </section>
   );
 }
