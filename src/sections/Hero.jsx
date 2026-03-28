@@ -207,24 +207,24 @@ export default function Hero() {
             </span>
           </h1>
           <p className="hero-sub max-w-xl leading-relaxed mb-9" style={{ fontFamily: "'Rajdhani',sans-serif", fontSize: 'clamp(14px,1.5vw,19px)', color: 'rgba(200,205,230,.72)' }}>
-            The grid is calling. Override protocols, bypass security clusters, and claim the bounty. The mainframe is yours for the taking.
+            "NEXUS is India's premier national-level tactical hackathon. Join 2500+ elite minds across the country to override legacy systems, bypass security clusters, and engineer the future of the digital frontier. The grand bounty awaits the ultimate architects."
           </p>
           <div className="flex flex-wrap gap-3 mb-11">
-            {[{ t: 'COMBAT_ZONE', b: 'rgba(255,45,155,.35)', bg: 'rgba(255,45,155,.07)' }, { t: '$50,000 BOUNTY', b: 'rgba(0,240,255,.35)', bg: 'rgba(0,240,255,.07)' }, { t: 'GLOBAL_NODES', b: 'rgba(255,45,155,.25)', bg: 'rgba(255,45,155,.05)' }, { t: 'NO_LIMITS', b: 'rgba(252,238,10,.28)', bg: 'rgba(252,238,10,.05)' }].map(({ t, b, bg }) => (
-              <span key={t} className="hero-badge text-white/80 uppercase" style={{ fontFamily: "'Share Tech Mono',monospace", fontSize: 10, letterSpacing: '.17em', padding: '8px 16px', border: `1px solid ${b}`, background: bg, clipPath: 'polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)' }}>
-                {t}
-              </span>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-5 pointer-events-auto">
-            <MagneticButton className="hero-btn" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-              style={{ fontFamily: "'Orbitron',sans-serif", padding: '17px 46px', background: '#00F0FF', color: '#000', fontSize: 12, fontWeight: 800, letterSpacing: 2, clipPath: 'polygon(13px 0,100% 0,100% calc(100% - 13px),calc(100% - 13px) 100%,0 100%,0 13px)', boxShadow: '0 0 40px rgba(0,240,255,.6),0 0 80px rgba(0,240,255,.18)', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>
-              Initialize_
-            </MagneticButton>
-            <button className="hero-btn text-white/60 uppercase transition-all hover:text-[#FF2D9B] hover:border-[#FF2D9B]" style={{ fontFamily: "'Share Tech Mono',monospace", fontSize: 10, letterSpacing: '.14em', padding: '15px 28px', background: 'transparent', border: '1px solid rgba(255,255,255,.2)', cursor: 'pointer' }} onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}>
-              View Protocol
-            </button>
-          </div>
+              {[{ t: 'COMBAT_ZONE', b: 'rgba(255,45,155,.35)', bg: 'rgba(255,45,155,.07)' }, { t: '$50,000 BOUNTY', b: 'rgba(0,240,255,.35)', bg: 'rgba(0,240,255,.07)' }, { t: 'GLOBAL_NODES', b: 'rgba(255,45,155,.25)', bg: 'rgba(255,45,155,.05)' }, { t: 'NO_LIMITS', b: 'rgba(252,238,10,.28)', bg: 'rgba(252,238,10,.05)' }].map(({ t, b, bg }) => (
+                <span key={t} className="hero-badge text-white/80 uppercase" style={{ fontFamily: "'Share Tech Mono',monospace", fontSize: 10, letterSpacing: '.17em', padding: '8px 16px', border: `1px solid ${b}`, background: bg, clipPath: 'polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)' }}>
+                  {t}
+                </span>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-5 pointer-events-auto">
+              <MagneticButton className="hero-btn" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+                style={{ fontFamily: "'Orbitron',sans-serif", padding: '17px 46px', background: '#00F0FF', color: '#000', fontSize: 12, fontWeight: 800, letterSpacing: 2, clipPath: 'polygon(13px 0,100% 0,100% calc(100% - 13px),calc(100% - 13px) 100%,0 100%,0 13px)', boxShadow: '0 0 40px rgba(0,240,255,.6),0 0 80px rgba(0,240,255,.18)', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>
+                Initialize_
+              </MagneticButton>
+              <button className="hero-btn text-white/60 uppercase transition-all hover:text-[#FF2D9B] hover:border-[#FF2D9B]" style={{ fontFamily: "'Share Tech Mono',monospace", fontSize: 10, letterSpacing: '.14em', padding: '15px 28px', background: 'transparent', border: '1px solid rgba(255,255,255,.2)', cursor: 'pointer' }} onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}>
+                View Protocol
+              </button>
+            </div>
         </div>
       </div>
 

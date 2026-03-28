@@ -1,7 +1,3 @@
-/**
- * About.jsx
- * DEPS: npm install three gsap @react-three/fiber @react-three/drei
- */
 import { useEffect, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars, Sparkles, PerspectiveCamera, Environment } from '@react-three/drei';
@@ -12,66 +8,37 @@ import useWebGL from './useWebGL';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ─── Animated Soldier ─────────────────────────────────────────────────────────
+// --- Animated Soldier (Background Visual) ---
 function AnimatedSoldier({ progressRef }) {
   const { scene } = useThree();
   const soldierRef = useRef(null);
-  const gunRef = useRef(null);
-  const visorRef = useRef([]);
   const timeRef = useRef(0);
 
   useEffect(() => {
     const M = (hex, opts = {}) => new THREE.MeshStandardMaterial({ color: hex, ...opts });
     const ME = (hex, i = 4) => new THREE.MeshStandardMaterial({ color: hex, emissive: new THREE.Color(hex), emissiveIntensity: i, toneMapped: false });
     const Box = (g, w, h, d, mat, x, y, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); g.add(m); return m; };
-    const Cyl = (g, rt, rb, h, s, mat, x, y, z, rx = 0, ry = 0, rz = 0) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, s), mat); m.position.set(x, y, z); m.rotation.set(rx, ry, rz); g.add(m); return m; };
-    const Sph = (g, r, mat, x, y, z) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 16), mat); m.position.set(x, y, z); g.add(m); return m; };
+    const Cyl = (g, rt, rb, h, s, mat, x, y, z) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, s), mat); m.position.set(x, y, z); g.add(m); return m; };
 
     const sg = new THREE.Group();
-    sg.position.set(-2.8, -1.5, 0); sg.rotation.y = Math.PI / 5;
+    sg.position.set(0, -2, -3);
     scene.add(sg); soldierRef.current = sg;
 
-    // Head
     Box(sg, .5, .5, .5, M(0x0a0a0a, { metalness: 1 }), 0, 1.4, 0);
-    Box(sg, .52, .14, .14, M(0x0c0c1e, { metalness: .9 }), 0, 1.62, .3);
     Box(sg, .42, .12, .05, ME(0xFF003C, 10), 0, 1.45, .26);
-    // Neck
-    Cyl(sg, .13, .16, .22, 8, M(0x080810, { metalness: .9 }), 0, 1.62, 0);
-    // Torso
     Cyl(sg, .52, .38, 1.15, 8, M(0x080810, { metalness: .92 }), 0, .9, 0);
-    Box(sg, .58, .65, .14, M(0x0b0b1c, { metalness: .88 }), 0, .98, .28);
-    Box(sg, .06, .52, .09, ME(0x00F0FF, 2.2), -.2, .96, .34);
-    Box(sg, .06, .52, .09, ME(0x00F0FF, 2.2), .2, .96, .34);
-    Box(sg, .18, .05, .1, ME(0x00F0FF, 1.8), 0, 1.16, .34);
-    // Shoulders
-    Cyl(sg, .18, .15, .65, 8, M(0x080810, { metalness: .88 }), -.78, .72, 0);
-    Cyl(sg, .18, .15, .65, 8, M(0x080810, { metalness: .88 }), .78, .72, 0);
-    // Earpiece
-    Sph(sg, .072, ME(0x00F0FF, 3.5), -.5, 1.42, -.08);
-    // Legs
-    [-.24, .24].forEach(x => {
-      Cyl(sg, .24, .19, .72, 8, M(0x080810, { metalness: .88 }), x, -.22, 0);
-      Box(sg, .22, .06, .28, ME(0x00F0FF, 1.4), x, -.1, .15);
-    });
-    // Gun
-    const gg = new THREE.Group(); gg.position.set(.44, .6, .48); gg.rotation.set(Math.PI / 2, 0, .2);
-    Box(gg, .18, 1.4, .3, M(0x000), 0, 0, 0);
-    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, 1), ME(0x00F0FF, 15));
-    barrel.position.set(0, -.9, 0); gg.add(barrel);
-    sg.add(gg); gunRef.current = gg;
+    sg.add(new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.4, 0.3), M(0x000)).position.set(0.44, 0.6, 0.48));
 
-    return () => { scene.remove(sg); sg.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); };
+    return () => { scene.remove(sg); };
   }, [scene]);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     timeRef.current += delta;
-    const t = timeRef.current; const sg = soldierRef.current;
-    if (!sg) return;
-    sg.position.y = -1.5 + Math.sin(t * 1.2) * .15;
-    const p = progressRef.current || 0;
-    sg.rotation.y = Math.PI / 5 - (p * Math.PI / 2);
-    sg.position.x = -2.8 + (p * 1.8);
-    if (gunRef.current) gunRef.current.rotation.x = (Math.PI / 2) + Math.sin(t * 2.5) * .04;
+    if (soldierRef.current) {
+      soldierRef.current.position.y = -2 + Math.sin(timeRef.current * 1.2) * .15;
+      const p = progressRef.current || 0;
+      soldierRef.current.rotation.y = -Math.PI / 8 + (p * Math.PI / 4);
+    }
   });
   return null;
 }
@@ -84,116 +51,104 @@ export default function About() {
   const contentRef = useRef(null);
   const progress = useRef(0);
 
-  useWebGL(canvasRef, { particleCount: 700, hexCount: 9, lineCount: 14, particleColor: 0x00f0ff, accentColor: 0xff003c });
+  useWebGL(canvasRef, { particleCount: 900, hexCount: 15, lineCount: 20, particleColor: 0x00f0ff, accentColor: 0xff003c });
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Cinematic bars
-      gsap.timeline({
-        scrollTrigger: { trigger: secRef.current, start: 'top 80%', toggleActions: 'play none none reverse' }
-      })
-        .to(barTop.current, { yPercent: -100, duration: 1, ease: 'expo.inOut' })
-        .to(barBot.current, { yPercent: 100, duration: 1, ease: 'expo.inOut' }, '<');
+      gsap.timeline({ scrollTrigger: { trigger: secRef.current, start: 'top 80%', toggleActions: 'play none none reverse' } })
+        .to(barTop.current, { yPercent: -100, duration: 1.2, ease: 'expo.inOut' })
+        .to(barBot.current, { yPercent: 100, duration: 1.2, ease: 'expo.inOut' }, '<');
 
-      // Scroll progress for 3D
       ScrollTrigger.create({
         trigger: secRef.current, start: 'top bottom', end: 'bottom top',
         onUpdate: self => { progress.current = self.progress; }
       });
 
-      // Text stagger
       gsap.from('.about-reveal', {
         scrollTrigger: { trigger: contentRef.current, start: 'top 75%' },
-        y: 44, opacity: 0, duration: 1, stagger: .14, ease: 'power4.out'
-      });
-
-      // Stats pop
-      gsap.from('.stat-card-box', {
-        scrollTrigger: { trigger: contentRef.current, start: 'top 70%' },
-        y: 22, opacity: 0, scale: .88, duration: .8, stagger: .1, ease: 'back.out(1.7)', delay: .4
+        y: 60, opacity: 0, duration: 1.2, stagger: 0.2, ease: 'power4.out'
       });
     }, secRef);
     return () => ctx.revert();
   }, []);
 
   return (
-    <section id="about" ref={secRef} className="relative w-full min-h-screen py-32 px-6 md:px-12 bg-[#010103] overflow-hidden flex items-center">
+    <section id="about" ref={secRef} className="relative w-full min-h-screen py-32 px-6 md:px-12 bg-[#010103] overflow-hidden flex flex-col items-center justify-center">
 
-      {/* WebGL bg */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 pointer-events-none" />
-
-      {/* R3F soldier */}
-      <div className="absolute inset-0 z-[1] pointer-events-none">
+      {/* BACKGROUND LAYERS */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 opacity-40" />
+      <div className="absolute inset-0 z-[1] pointer-events-none opacity-30">
         <Canvas dpr={[1, 2]}>
-          <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={40} />
+          <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={40} />
           <ambientLight intensity={1} />
-          <pointLight position={[10, 10, 10]} color="#FF003C" intensity={5} />
-          <pointLight position={[-10, -5, 5]} color="#00F0FF" intensity={3} />
-          <Stars radius={100} depth={50} count={2000} factor={4} fade speed={1} />
-          <Sparkles count={60} scale={10} size={2} color="#00F0FF" />
+          <pointLight position={[10, 10, 10]} color="#00F0FF" intensity={5} />
+          <Stars radius={150} depth={50} count={3000} factor={6} fade speed={1} />
           <AnimatedSoldier progressRef={progress} />
-          <Environment preset="night" />
         </Canvas>
       </div>
 
-      {/* Cinematic bars */}
-      <div ref={barTop} className="absolute top-0 left-0 w-full h-[50.5vh] bg-black z-[50] border-b border-[rgba(0,240,255,0.1)]" />
-      <div ref={barBot} className="absolute bottom-0 left-0 w-full h-[50.5vh] bg-black z-[50] border-t border-[rgba(255,0,60,0.1)]" />
+      <div ref={barTop} className="absolute top-0 left-0 w-full h-[50.5vh] bg-black z-[50] border-b border-cyber-cyan/10" />
+      <div ref={barBot} className="absolute bottom-0 left-0 w-full h-[50.5vh] bg-black z-[50] border-t border-cyber-pink/10" />
 
-      {/* Content */}
-      <div ref={contentRef} className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <div className="max-w-2xl">
+      {/* EXPANDED CONTENT */}
+      <div ref={contentRef} className="relative z-10 w-full max-w-[1300px] mx-auto text-center">
 
-          {/* Tagline */}
-          <div className="about-reveal flex items-center gap-3 mb-10">
-            <span className="font-mono text-[10px] text-[#00F0FF] bg-[rgba(0,240,255,.05)] border border-[rgba(0,240,255,.2)] px-3 py-1 tracking-[0.4em] font-bold uppercase">
-              // CORE_MISSION: ESTABLISHED
-            </span>
-            <div className="flex-1 h-[1px] bg-gradient-to-r from-[rgba(0,240,255,.3)] to-transparent" />
+        {/* Massive Tagline */}
+        <div className="about-reveal flex items-center justify-center gap-6 mb-12">
+          <div className="h-[1px] w-full max-w-[150px] bg-gradient-to-l from-cyber-cyan/50 to-transparent" />
+          <span className="font-mono text-[11px] md:text-sm text-cyber-cyan tracking-[0.6em] font-black uppercase">
+            // NATIONAL_HACKATHON_INITIATIVE_2026
+          </span>
+          <div className="h-[1px] w-full max-w-[150px] bg-gradient-to-r from-cyber-cyan/50 to-transparent" />
+        </div>
+
+        {/* Heading - Bold & Wide */}
+        <h2 className="about-reveal font-orbitron font-black leading-[0.85] mb-12 uppercase tracking-tighter" style={{ fontSize: 'clamp(48px, 10vw, 130px)' }}>
+          <span className="text-white">THE </span>
+          <span className="text-cyber-cyan drop-shadow-[0_0_30px_#00F0FF]">GRID </span>
+          <br className="md:block hidden" />
+          <span className="text-transparent" style={{ WebkitTextStroke: '3px #FF003C', filter: 'drop-shadow(0 0 15px #FF003C)' }}>
+            ANOMALY
+          </span>
+        </h2>
+
+        {/* Lore text - Detailed & Professional */}
+        <div className="about-reveal mb-16 max-w-5xl mx-auto">
+          <p className="font-inter text-gray-400 text-xl md:text-3xl leading-[1.2] tracking-tight px-6">
+            NEXUS is India's premier <span className="text-white font-black italic">National-Level Tactical Hackathon</span>.
+            We are bridging the gap between legacy engineering and the decentralized future.
+            Join <span className="text-white font-bold underline decoration-cyber-cyan underline-offset-8">2500+ elite architects</span> in an
+            unrestricted arena to build, deploy, and dominate the digital frontier.
+          </p>
+
+          <div className="mt-12 flex flex-wrap justify-center gap-8 font-mono text-[10px] md:text-xs text-cyber-cyan font-bold tracking-[0.4em] uppercase">
+            <span>{'>'} PAN_INDIA_REACH</span>
+            <span className="text-white/20">|</span>
+            <span>{'>'} ZERO_RESTRICTION_STACK</span>
+            <span className="text-white/20">|</span>
+            <span>{'>'} REAL_TIME_COMMAND_CENTER</span>
           </div>
+        </div>
 
-          {/* Heading */}
-          <h2 className="about-reveal font-orbitron font-black leading-[0.9] mb-10 uppercase select-none" style={{ fontSize: 'clamp(44px,8vw,100px)' }}>
-            <span className="text-white">THE </span>
-            <span style={{ color: '#00F0FF', filter: 'drop-shadow(0 0 25px rgba(0,240,255,0.4))' }}>GRID </span>
-            <br />
-            <span style={{ color: 'transparent', WebkitTextStroke: '2px #FF003C', filter: 'drop-shadow(0 0 12px rgba(255,0,60,0.4))' }}>
-              ANOMALY
-            </span>
-          </h2>
-
-          {/* Lore text */}
-          <div className="about-reveal relative mb-12">
-            <div className="absolute left-0 top-0 w-1 h-full" style={{ background: 'linear-gradient(180deg,#00F0FF,#FF003C)' }} />
-            <p className="font-inter text-gray-400 text-lg md:text-xl leading-relaxed pl-8">
-              Legacy hackathons are bloated relics of the past.
-              <span className="text-white font-bold px-1">NEXUS</span> is the system override—a decentralized arena for elite architects to build, deploy, and dominate the digital frontier.
-              <br />
-              <span className="font-mono text-sm text-[#00F0FF] mt-4 block tracking-widest uppercase font-bold">
-                {'>'} STATUS: SYSTEM_CRITICAL // NO_EXIT_FOUND
-              </span>
-            </p>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 about-reveal">
-            {[
-              { val: 'JUL 25', label: 'IGNITION', col: '#00F0FF' },
-              { val: 'GLOBAL', label: 'CONNECT', col: '#FF003C' },
-              { val: 'WEB3', label: 'LAYER', col: '#FFE600' },
-              { val: '48HRS', label: 'EXECUTE', col: '#00FF88' },
-            ].map(s => (
-              <div key={s.label} className="stat-card-box group relative p-5 bg-white/[0.02] border border-white/10 backdrop-blur-md rounded-sm transition-all duration-500 hover:bg-white/[0.05] hover:border-white/20">
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500" style={{ background: s.col }} />
-                <div className="relative z-10 font-orbitron font-black text-2xl mb-1 tracking-tighter" style={{ color: s.col, textShadow: `0 0 10px ${s.col}50` }}>
-                  {s.val}
-                </div>
-                <div className="relative z-10 font-mono text-[9px] text-gray-500 tracking-[0.2em] font-bold uppercase">
-                  {s.label}
-                </div>
+        {/* Stats Grid - Large & Detailed */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 about-reveal">
+          {[
+            { val: 'JUL 25', label: 'IGNITION_PHASE', col: '#00F0FF', desc: 'National portal activation' },
+            { val: '2.5K+', label: 'AGENT_REGISTRY', col: '#FF003C', desc: 'Elite nationwide talent' },
+            { val: 'INDIA', label: 'COMMAND_ZONE', col: '#FFE600', desc: 'Multi-state connectivity' },
+            { val: '48HRS', label: 'EXECUTION_TIME', col: '#00FF88', desc: 'Uninterrupted hacking' },
+          ].map((s, i) => (
+            <div key={i} className="stat-card-box group relative p-10 bg-white/[0.03] border border-white/10 backdrop-blur-xl transition-all duration-500 hover:border-cyber-cyan/40 hover:-translate-y-2">
+              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l" style={{ borderColor: s.col }} />
+              <div className="font-orbitron font-black text-4xl md:text-5xl mb-2" style={{ color: s.col, textShadow: `0 0 15px ${s.col}50` }}>
+                {s.val}
               </div>
-            ))}
-          </div>
+              <div className="font-mono text-[10px] text-gray-500 tracking-[0.2em] font-bold uppercase mb-2">
+                {s.label}
+              </div>
+              <p className="font-mono text-[8px] text-white/20 uppercase tracking-widest">{s.desc}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
