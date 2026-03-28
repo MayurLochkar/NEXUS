@@ -1,178 +1,220 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Float, Stars, PerspectiveCamera, Environment, Sparkles } from '@react-three/drei';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import * as THREE from 'three';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// =========================================================================
+// THE CYBER-SOLDIER (3D Model with Gun)
+// =========================================================================
+function AnimatedSoldier({ progressRef }) {
+  const group = useRef();
+  const gunRef = useRef();
+
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (group.current) {
+      // Combat Idle: Floating and subtle rotation
+      group.current.position.y = Math.sin(t * 1.2) * 0.15;
+
+      // SCROLL ANIMATION: Character slides and rotates based on scroll progress
+      // Progress 0 to 1 comes from ScrollTrigger
+      const p = progressRef.current;
+      group.current.rotation.y = -Math.PI / 3 + (p * Math.PI / 1.5);
+      group.current.position.x = 3 - (p * 2);
+    }
+
+    if (gunRef.current) {
+      // Weapon sway
+      gunRef.current.rotation.x = (Math.PI / 2) + Math.sin(t * 2.5) * 0.04;
+    }
+  });
+
+  return (
+    <group ref={group} position={[2.5, -1.5, 0]} scale={2}>
+      {/* Mecha Head */}
+      <mesh position={[0, 1.4, 0]}>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
+        <meshStandardMaterial color="#0a0a0a" metalness={1} roughness={0.1} />
+      </mesh>
+
+      {/* Glowing Tactical Visor */}
+      <mesh position={[0, 1.45, 0.26]}>
+        <boxGeometry args={[0.42, 0.12, 0.05]} />
+        <meshStandardMaterial color="#FF003C" emissive="#FF003C" emissiveIntensity={12} />
+      </mesh>
+
+      {/* Heavy Armor Torso */}
+      <mesh position={[0, 0.6, 0]}>
+        <boxGeometry args={[0.75, 1.3, 0.45]} />
+        <meshStandardMaterial color="#050505" metalness={0.8} />
+      </mesh>
+
+      {/* Cyber Core (Cyan) */}
+      <mesh position={[0, 0.8, 0.22]}>
+        <sphereGeometry args={[0.15, 16, 16]} />
+        <meshStandardMaterial color="#00F0FF" emissive="#00F0FF" emissiveIntensity={8} />
+      </mesh>
+
+      {/* PLASMA RIFLE */}
+      <group ref={gunRef} position={[0.4, 0.6, 0.5]} rotation={[Math.PI / 2, 0, 0.2]}>
+        <mesh>
+          <boxGeometry args={[0.18, 1.4, 0.3]} />
+          <meshStandardMaterial color="#000" />
+        </mesh>
+        <mesh position={[0, -0.9, 0]}>
+          <cylinderGeometry args={[0.04, 0.04, 1]} />
+          <meshStandardMaterial color="#00F0FF" emissive="#00F0FF" emissiveIntensity={15} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+// =========================================================================
+// MAIN ABOUT COMPONENT
+// =========================================================================
 export default function About() {
-  const secRef  = useRef(null);
-  const barTop  = useRef(null);
-  const barBot  = useRef(null);
-  const textRef = useRef(null);
-  const terminalRef = useRef(null);
+  const secRef = useRef(null);
+  const barTop = useRef(null);
+  const barBot = useRef(null);
+  const contentScope = useRef(null);
+
+  // Ref to store scroll progress for Three.js without triggering re-renders
+  const progress = useRef(0);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // 1. Cinematic bars close then open to reveal
+    // GSAP Context ensures selectors like ".about-anim" are found ONLY inside secRef
+    let ctx = gsap.context(() => {
+
+      // 1. Cinematic Black Bars Reveal
       const tl = gsap.timeline({
-        scrollTrigger: { 
-          trigger: secRef.current, 
-          start: 'top 70%', 
-          toggleActions: 'play none none reverse' 
+        scrollTrigger: {
+          trigger: secRef.current,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse',
         }
       });
-      
-      tl.from(barTop.current, { yPercent: -100, duration: 0.7, ease: 'power3.inOut' })
-        .from(barBot.current, { yPercent: 100, duration: 0.7, ease: 'power3.inOut' }, '<')
-        .to([barTop.current, barBot.current], { yPercent: 0, duration: 0.05 }) // The flash moment
-        .to(barTop.current, { yPercent: -100, duration: 0.6, ease: 'power3.inOut', delay: 0.2 })
-        .to(barBot.current, { yPercent: 100, duration: 0.6, ease: 'power3.inOut' }, '<');
 
-      // 2. Text Content Reveal
-      gsap.from('.about-p', {
-        scrollTrigger: { trigger: textRef.current, start: 'top 75%' },
-        y: 40, opacity: 0, duration: 0.8, stagger: 0.15, ease: 'power3.out', delay: 0.2
+      tl.to(barTop.current, { yPercent: -100, duration: 0.8, ease: 'expo.inOut' })
+        .to(barBot.current, { yPercent: 100, duration: 0.8, ease: 'expo.inOut' }, '<');
+
+      // 2. Track Scroll Progress for the 3D Character
+      ScrollTrigger.create({
+        trigger: secRef.current,
+        start: 'top bottom',
+        end: 'bottom top',
+        onUpdate: (self) => {
+          progress.current = self.progress;
+        }
       });
 
-      // 3. Stat Cards Pop-in
-      gsap.from('.about-stat-item', {
-        scrollTrigger: { trigger: textRef.current, start: 'top 70%' },
-        scale: 0.8, opacity: 0, duration: 0.6, stagger: 0.1, ease: 'back.out(1.5)', delay: 0.6
+      // 3. Text Reveal Animation (Fixed selector issue)
+      if (document.querySelectorAll('.about-reveal').length > 0) {
+        gsap.from('.about-reveal', {
+          scrollTrigger: {
+            trigger: contentScope.current,
+            start: 'top 75%',
+          },
+          x: -60,
+          opacity: 0,
+          duration: 1.2,
+          stagger: 0.2,
+          ease: 'power4.out'
+        });
+      }
+
+      // 4. Stat Cards Scale-up
+      gsap.from('.stat-card-box', {
+        scrollTrigger: {
+          trigger: contentScope.current,
+          start: 'top 65%',
+        },
+        scale: 0.5,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: 'back.out(1.7)',
+        delay: 0.4
       });
 
-      // 4. Terminal Float Animation (Continuous)
-      gsap.to(terminalRef.current, {
-        y: -15,
-        duration: 3,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut'
-      });
+    }, secRef); // Scope everything to secRef
 
-    }, secRef);
     return () => ctx.revert();
   }, []);
 
   return (
-    <section id="about" ref={secRef} className="relative w-full py-24 md:py-32 px-6 md:px-12 bg-[#020205] overflow-hidden">
-      
-      {/* Dynamic Grid Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-40" style={{
-        backgroundImage: 'linear-gradient(rgba(0,240,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,0.04) 1px,transparent 1px)',
-        backgroundSize: '50px 50px'
-      }}/>
-      
-      {/* Abstract Glow behind the terminal */}
-      <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[500px] bg-cyber-cyan/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
+    <section
+      id="about"
+      ref={secRef}
+      className="relative w-full min-h-screen py-24 px-6 md:px-12 bg-[#010103] overflow-hidden flex items-center"
+    >
 
-      {/* Cinematic Bars (GSAP Controlled) */}
-      <div ref={barTop} className="absolute top-0 left-0 w-full h-[50vh] bg-black z-[100] -translate-y-full shadow-[0_10px_30px_#00F0FF]"/>
-      <div ref={barBot} className="absolute bottom-0 left-0 w-full h-[50vh] bg-black z-[100] translate-y-full shadow-[0_-10px_30px_#FF003C]"/>
+      {/* 1. THREE.JS LAYER (Animated Character) */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <Canvas dpr={[1, 2]}>
+          <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={40} />
+          <ambientLight intensity={1} />
+          <pointLight position={[10, 10, 10]} color="#FF003C" intensity={5} />
+          <pointLight position={[-10, -5, 5]} color="#00F0FF" intensity={3} />
 
-      <div className="relative z-10 max-w-7xl mx-auto">
-        
-        {/* Top Tagline */}
-        <div className="flex items-center gap-3 mb-8">
-          <span className="font-mono text-xs text-cyber-pink tracking-widest">//</span>
-          <span className="font-mono text-xs text-cyber-pink tracking-widest uppercase">System_Lore</span>
-          <div className="w-16 h-[1px] bg-cyber-pink/40 shadow-[0_0_10px_#FF003C]"/>
-        </div>
+          <Stars radius={100} depth={50} count={3000} factor={4} fade speed={1} />
+          <Sparkles count={80} scale={10} size={2} color="#00F0FF" />
 
-        {/* Main Content Layout (Responsive Flex instead of rigid grid) */}
-        <div ref={textRef} className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-center">
-
-          {/* LEFT: Lore & Stats */}
-          <div className="w-full lg:w-1/2">
-            <h2 className="about-p font-orbitron font-black leading-[1.1] mb-6 uppercase" style={{ fontSize: 'clamp(36px, 5vw, 64px)' }}>
-              The <span className="text-cyber-cyan drop-shadow-[0_0_20px_rgba(0,240,255,0.6)]">Grid</span><br/>
-              <span className="text-transparent" style={{ WebkitTextStroke: '2px #FF003C' }}>Anomaly</span>
-            </h2>
-            
-            <div className="about-p border-l-2 border-cyber-cyan pl-6 mb-8">
-              <p className="font-inter text-gray-400 text-lg leading-relaxed mb-4">
-                Legacy hackathons are bloated, corporate, and lack the true hacker ethos. Participants navigate broken platforms instead of pushing the boundaries of code. <span className="text-white font-semibold">The system is flawed.</span>
-              </p>
-              <p className="font-inter text-gray-400 text-lg leading-relaxed">
-                NEXUS is the system override. A hyper-immersive, decentralized battleground where elite developers, designers, and web3 architects unite to build the future. No optics. Just pure execution.
-              </p>
-            </div>
-
-            {/* Interactive Stat Cards Grid */}
-            <div className="grid grid-cols-2 gap-4 mt-8">
-              {[
-                { val: 'JUL 25', label: 'IGNITION', color: '#00F0FF', shadow: 'hover:shadow-[0_0_20px_#00F0FF]' },
-                { val: 'GLOBAL', label: 'SCALE', color: '#FF003C', shadow: 'hover:shadow-[0_0_20px_#FF003C]' },
-                { val: 'WEB3', label: 'CORE THEME', color: '#FFE600', shadow: 'hover:shadow-[0_0_20px_#FFE600]' },
-                { val: '48 HRS', label: 'TIME LIMIT', color: '#7B2FBE', shadow: 'hover:shadow-[0_0_20px_#7B2FBE]' },
-              ].map((s) => (
-                <div key={s.label} className={`about-stat-item group relative p-6 bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg transition-all duration-300 hover:-translate-y-2 hover:border-[${s.color}]/50 ${s.shadow} cursor-default overflow-hidden`}>
-                  {/* Subtle hover background glow */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300" style={{ backgroundColor: s.color }}></div>
-                  
-                  <div className="relative z-10 font-orbitron font-black text-2xl md:text-3xl" style={{ color: s.color, textShadow: `0 0 15px ${s.color}50` }}>
-                    {s.val}
-                  </div>
-                  <div className="relative z-10 font-mono text-[10px] text-gray-500 tracking-widest mt-2 group-hover:text-white transition-colors duration-300">
-                    {s.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* RIGHT: The Terminal Dashboard */}
-          <div className="w-full lg:w-1/2" ref={terminalRef}>
-            <div className="relative group rounded-xl overflow-hidden border border-cyber-cyan/30 bg-black/60 backdrop-blur-xl shadow-[0_0_40px_rgba(0,0,0,0.8)] transition-all duration-500 hover:border-cyber-cyan/80 hover:shadow-[0_0_50px_rgba(0,240,255,0.2)]">
-              
-              {/* Terminal Header */}
-              <div className="px-5 py-3 border-b border-cyber-cyan/20 bg-cyber-cyan/5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-cyber-pink shadow-[0_0_8px_#FF003C]"/>
-                  <div className="w-3 h-3 rounded-full bg-cyber-yellow shadow-[0_0_8px_#FFE600]"/>
-                  <div className="w-3 h-3 rounded-full bg-[#00FF88] shadow-[0_0_8px_#00FF88]"/>
-                </div>
-                <span className="font-mono text-[10px] text-cyber-cyan/60 tracking-widest uppercase">nexus@mainframe:~/status</span>
-              </div>
-              
-              {/* Terminal Body */}
-              <div className="p-8 font-mono text-sm leading-relaxed text-cyber-cyan/80 relative">
-                <div className="flex flex-col gap-3">
-                  {[
-                    ['SYS_STATUS', 'OPERATIONAL', '#00FF88'],
-                    ['ACTIVE_NODES', '2,500+ DEV_UNITS', '#00F0FF'],
-                    ['GLOBAL_PING', '32 REGIONS', '#00F0FF'],
-                    ['ACTIVE_TRACKS', '4 CLUSTERS', '#00F0FF'],
-                    ['BOUNTY_POOL', '$50,000 USD', '#FFE600'],
-                    ['TIME_REMAINING', '47:59:59', '#FF003C'],
-                  ].map(([k, v, color]) => (
-                    <div key={k} className="flex items-start md:items-center flex-col md:flex-row gap-1 md:gap-4 hover:bg-white/5 p-1 rounded transition-colors">
-                      <span className="text-white/30 shrink-0">{'>'} {k}:</span>
-                      <span className="font-bold drop-shadow-[0_0_8px_currentColor]" style={{ color: color }}>{v}</span>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="mt-8 flex items-center gap-2">
-                  <span className="text-cyber-pink font-semibold">{'>'} AWAITING_CONNECTION</span>
-                  <span className="w-2 h-4 bg-cyber-cyan animate-pulse shadow-[0_0_10px_#00F0FF]"></span>
-                </div>
-
-                {/* Vertical Scanner Line Effect */}
-                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyber-cyan to-transparent opacity-50" 
-                     style={{ animation: 'scanline 3s linear infinite' }}/>
-              </div>
-            </div>
-          </div>
-
-        </div>
+          <AnimatedSoldier progressRef={progress} />
+          <Environment preset="night" />
+        </Canvas>
       </div>
 
-      <style>{`
-        @keyframes scanline { 
-          0% { top: 0; opacity: 1; } 
-          100% { top: 100%; opacity: 0.1; } 
-        }
-      `}</style>
+      {/* 2. CINEMATIC BARS LAYER */}
+      <div ref={barTop} className="absolute top-0 left-0 w-full h-[50.5vh] bg-black z-[100] border-b border-cyber-cyan/20" />
+      <div ref={barBot} className="absolute bottom-0 left-0 w-full h-[50.5vh] bg-black z-[100] border-t border-cyber-pink/20" />
+
+      {/* 3. CONTENT UI LAYER */}
+      <div ref={contentScope} className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+        <div className="max-w-2xl">
+          {/* Tagline */}
+          <div className="about-reveal flex items-center gap-4 mb-8">
+            <span className="font-mono text-xs text-cyber-pink tracking-[0.4em] font-bold uppercase tracking-tighter shadow-sm">
+              // Neural_Link_Active
+            </span>
+            <div className="flex-1 h-[1px] bg-gradient-to-r from-cyber-pink/50 to-transparent" />
+          </div>
+
+          {/* Heading */}
+          <h2 className="about-reveal font-orbitron font-black text-white leading-[0.95] mb-8 uppercase" style={{ fontSize: 'clamp(40px, 7vw, 90px)' }}>
+            The <span className="text-cyber-cyan drop-shadow-[0_0_20px_#00F0FF]">Grid</span><br />
+            <span className="text-transparent" style={{ WebkitTextStroke: '2px #FF003C', filter: 'drop-shadow(0 0 10px #FF003C)' }}>Anomaly</span>
+          </h2>
+
+          {/* Lore Text */}
+          <p className="about-reveal font-inter text-gray-400 text-lg md:text-xl leading-relaxed mb-10 border-l-4 border-cyber-cyan pl-6 py-2 bg-white/5 backdrop-blur-md rounded-r-lg">
+            NEXUS is the system override. A hyper-immersive, decentralized battleground where elite agents unite to rewrite the digital frontier.
+            <span className="text-white block mt-2 opacity-80">48 Hours. No Limits. Zero Mercy.</span>
+          </p>
+
+          {/* Stats Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 about-reveal">
+            {[
+              { val: 'JUL 25', label: 'IGNITION', col: '#00F0FF' },
+              { val: 'GLOBAL', label: 'SCALE', col: '#FF003C' },
+              { val: 'WEB3', label: 'CORE', col: '#FFE600' },
+              { val: '48H', label: 'LIMIT', col: '#00FF88' },
+            ].map((s) => (
+              <div key={s.label} className="stat-card-box p-4 bg-black/80 border border-white/10 rounded-sm hover:border-cyber-cyan/40 transition-all text-center group">
+                <div className="font-orbitron font-black text-xl mb-1 group-hover:scale-110 transition-transform" style={{ color: s.col, textShadow: `0 0 10px ${s.col}80` }}>{s.val}</div>
+                <div className="font-mono text-[9px] text-gray-600 tracking-widest uppercase">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
     </section>
   );
 }

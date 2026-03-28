@@ -1,36 +1,36 @@
-import { useRef } from 'react'
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
+import { useRef } from 'react';
 
-export default function TiltCard({ children, style = {} }) {
-  const ref = useRef(null)
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
+export default function TiltCard({ children, className = '' }) {
+  const cardRef = useRef(null);
 
-  const sx = useSpring(x, { stiffness: 200, damping: 20 })
-  const sy = useSpring(y, { stiffness: 200, damping: 20 })
+  const handleMouseMove = (e) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02,1.02,1.02)`;
+  };
 
-  const rotX = useTransform(sy, [-0.5, 0.5], ['12deg', '-12deg'])
-  const rotY = useTransform(sx, [-0.5, 0.5], ['-12deg', '12deg'])
-
-  const onMouseMove = e => {
-    const rect = ref.current.getBoundingClientRect()
-    x.set((e.clientX - rect.left) / rect.width  - 0.5)
-    y.set((e.clientY - rect.top)  / rect.height - 0.5)
-  }
+  const handleMouseLeave = () => {
+    const card = cardRef.current;
+    if (!card) return;
+    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+  };
 
   return (
-    <motion.div
-      ref={ref}
-      onMouseMove={onMouseMove}
-      onMouseLeave={() => { x.set(0); y.set(0) }}
-      style={{
-        rotateX: rotX, rotateY: rotY,
-        transformStyle: 'preserve-3d',
-        perspective: 800,
-        ...style
-      }}
+    <div
+      ref={cardRef}
+      className={className}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ transition: 'transform 0.15s ease', willChange: 'transform' }}
     >
       {children}
-    </motion.div>
-  )
+    </div>
+  );
 }
