@@ -21,72 +21,114 @@ export default function FAQ() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Staggered reveal of FAQ items when scrolled into view
       gsap.from('.faq-item', {
         scrollTrigger: {
           trigger: secRef.current,
-          start: 'top 75%',
+          start: 'top 80%',
         },
-        x: -30,
+        y: 20,
         opacity: 0,
-        duration: 0.6,
+        duration: 0.5,
         stagger: 0.1,
-        ease: 'power3.out'
+        ease: 'power2.out',
       })
     }, secRef)
     return () => ctx.revert()
   }, [])
 
-  return (
-    <section id="faq" ref={secRef} className="relative w-full py-32 px-6 bg-[#020205] overflow-hidden">
-      
-      {/* Background Cyber-Aesthetic */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]" style={{
-        backgroundImage: 'linear-gradient(rgba(0,240,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,1) 1px,transparent 1px)',
-        backgroundSize: '45px 45px'
-      }}/>
-      <div className="absolute top-0 right-0 w-96 h-96 bg-cyber-cyan/5 blur-[120px] rounded-full pointer-events-none"/>
+  const cyan = '#00F0FF'
 
-      <div className="relative z-10 max-w-4xl mx-auto">
-        
-        {/* Section Header */}
-        <div className="flex flex-col items-center mb-20">
-          <div className="flex items-center gap-4 mb-4">
-            <span className="font-mono text-xs text-cyber-cyan tracking-[0.3em]">//</span>
-            <span className="font-mono text-xs text-cyber-cyan tracking-[0.3em] uppercase">Knowledge_Base</span>
-            <div className="w-16 h-[1px] bg-cyber-cyan/40 shadow-[0_0_10px_#00F0FF]"/>
+  return (
+    <section
+      id="faq"
+      ref={secRef}
+      style={{
+        width: '100%',
+        padding: '100px 20px',
+        backgroundColor: '#020205',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Background Grid */}
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none', opacity: 0.04,
+        backgroundImage: `linear-gradient(${cyan} 1px, transparent 1px), linear-gradient(90deg, ${cyan} 1px, transparent 1px)`,
+        backgroundSize: '40px 40px',
+      }} />
+
+      <div style={{ position: 'relative', zIndex: 10, maxWidth: '850px', margin: '0 auto' }}>
+
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+            <span style={{ color: cyan, fontFamily: 'monospace', fontSize: '12px', letterSpacing: '4px' }}>// KNOWLEDGE_BASE</span>
+            <div style={{ width: '50px', height: '1px', background: cyan, opacity: 0.5 }} />
           </div>
-          <h2 className="font-orbitron font-black text-white text-center uppercase leading-tight" style={{ fontSize: 'clamp(32px, 5vw, 52px)' }}>
-            Data <span className="text-transparent" style={{ WebkitTextStroke: '2px #00F0FF', filter: 'drop-shadow(0 0 15px rgba(0,240,255,0.5))' }}>Queries</span>
+          <h2 style={{
+            fontFamily: 'Orbitron, sans-serif',
+            fontSize: 'clamp(28px, 5vw, 50px)',
+            fontWeight: 900,
+            color: '#fff',
+            margin: 0,
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+          }}>
+            Data <span style={{ color: cyan, textShadow: `0 0 20px ${cyan}80` }}>Queries</span>
           </h2>
         </div>
 
-        {/* FAQ Accordion Grid */}
-        <div className="space-y-4">
+        {/* Accordion */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {faqs.map((faq, i) => {
-            const isActive = open === i;
+            const isActive = open === i
             return (
-              <div 
-                key={i} 
-                className="faq-item group transition-all duration-500 rounded-lg overflow-hidden border"
+              <div
+                key={i}
+                className="faq-item"
                 style={{
-                  borderColor: isActive ? 'rgba(0,240,255,0.4)' : 'rgba(255,255,255,0.08)',
-                  background: isActive ? 'rgba(0,240,255,0.03)' : 'rgba(255,255,255,0.02)',
+                  border: `1px solid ${isActive ? `${cyan}66` : 'rgba(255,255,255,0.1)'}`,
+                  background: isActive ? 'rgba(0,240,255,0.04)' : 'rgba(255,255,255,0.02)',
+                  borderRadius: '6px',
+                  overflow: 'hidden',
+                  transition: 'border-color 0.3s, background 0.3s',
                 }}
               >
-                <button 
+                <button
                   onClick={() => setOpen(isActive ? -1 : i)}
-                  className="w-full flex items-center justify-between p-6 md:p-8 text-left transition-all group-hover:bg-white/5"
+                  style={{
+                    width: '100%',
+                    padding: '22px 24px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
                 >
-                  <span className={`font-orbitron text-sm md:text-base font-bold tracking-widest uppercase transition-colors duration-300 ${isActive ? 'text-cyber-cyan' : 'text-gray-400 group-hover:text-white'}`}>
+                  <span style={{
+                    fontFamily: 'Orbitron, sans-serif',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: isActive ? cyan : 'rgba(255,255,255,0.75)',
+                    letterSpacing: '1px',
+                    textTransform: 'uppercase',
+                    transition: 'color 0.3s',
+                  }}>
                     {faq.q}
                   </span>
-                  
-                  {/* Custom Animated Toggle Icon */}
-                  <div className={`relative flex items-center justify-center w-8 h-8 rounded-sm border transition-all duration-500 ${isActive ? 'border-cyber-cyan bg-cyber-cyan/20 rotate-180 shadow-[0_0_10px_#00F0FF]' : 'border-white/20'}`}>
-                    <div className="absolute w-4 h-0.5 bg-current" style={{ color: isActive ? '#00F0FF' : 'white' }} />
-                    <div className={`absolute w-0.5 h-4 bg-current transition-transform duration-500 ${isActive ? 'rotate-90 scale-0' : 'scale-100'}`} style={{ color: 'white' }} />
-                  </div>
+                  <div style={{
+                    color: isActive ? cyan : 'rgba(255,255,255,0.4)',
+                    fontSize: '24px',
+                    fontWeight: 300,
+                    lineHeight: 1,
+                    transform: isActive ? 'rotate(45deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s, color 0.3s',
+                    flexShrink: 0,
+                    marginLeft: '16px',
+                  }}>+</div>
                 </button>
 
                 <AnimatePresence initial={false}>
@@ -95,34 +137,45 @@ export default function FAQ() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
+                      transition={{ duration: 0.35, ease: [0.04, 0.62, 0.23, 0.98] }}
                     >
-                      <div className="px-8 pb-8 pt-0 border-t border-cyber-cyan/10">
-                        <div className="font-mono text-sm md:text-base leading-relaxed text-gray-400 flex gap-4 pt-6">
-                          <span className="text-cyber-cyan animate-pulse">{'>'}</span>
-                          <span className="selection:bg-cyber-cyan selection:text-black">
-                            {faq.a}
-                          </span>
+                      <div style={{
+                        padding: '0 24px 24px',
+                        borderTop: `1px solid ${cyan}1A`,
+                        paddingTop: '16px',
+                      }}>
+                        <div style={{
+                          fontFamily: 'monospace',
+                          fontSize: '14px',
+                          lineHeight: 1.8,
+                          color: 'rgba(255,255,255,0.55)',
+                          display: 'flex',
+                          gap: '12px',
+                        }}>
+                          <span style={{ color: cyan, flexShrink: 0 }}>{'>'}</span>
+                          <span>{faq.a}</span>
                         </div>
-                        
-                        {/* Interactive scan-line effect inside answer */}
-                        <div className="mt-8 w-1/3 h-[1px] bg-gradient-to-r from-cyber-cyan to-transparent opacity-40 shadow-[0_0_8px_#00F0FF]" />
+                        <div style={{
+                          marginTop: '20px',
+                          width: '30%',
+                          height: '1px',
+                          background: `linear-gradient(90deg, ${cyan}, transparent)`,
+                        }} />
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-            );
+            )
           })}
         </div>
 
-        {/* Footer Prompt */}
-        <div className="mt-16 text-center opacity-30">
-          <p className="font-mono text-[10px] text-gray-400 tracking-[0.4em] uppercase">
+        {/* Footer */}
+        <div style={{ marginTop: '60px', textAlign: 'center', opacity: 0.25 }}>
+          <p style={{ fontFamily: 'monospace', fontSize: '10px', color: '#fff', letterSpacing: '4px', textTransform: 'uppercase', margin: 0 }}>
             [END_OF_TRANS] // Connection: STABLE
           </p>
         </div>
-
       </div>
     </section>
   )
