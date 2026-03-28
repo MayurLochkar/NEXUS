@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import Lenis from '@studio-freight/lenis'
+import Lenis from 'lenis'
 import AuthPage from './pages/AuthPage'
 import MainPage from './pages/MainPage'
 
