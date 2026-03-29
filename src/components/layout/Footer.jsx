@@ -130,7 +130,7 @@ export default function Footer() {
           </div>
 
           <div className="font-mono text-[10px] text-gray-600 tracking-widest uppercase italic hover:text-white transition-colors duration-500">
-            Built for hackers // by agents of innovation
+            Built for hackers // by agents of innovation // Mayur Lochkar
           </div>
         </div>
 
