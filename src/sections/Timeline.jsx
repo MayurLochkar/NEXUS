@@ -124,7 +124,7 @@ export default function Timeline() {
     <section id="timeline" ref={secRef} className="relative w-full py-32 bg-[#010103] overflow-hidden" style={{ perspective: '1200px' }}>
 
       {/* LAYER 0: Your original WebGL Canvas */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 pointer-events-none opacity-40" />
+      <div ref={canvasRef} className="absolute inset-0 w-full h-full z-[0] pointer-events-none" />
 
       {/* LAYER 1: Three.js Sentry */}
       <div className="absolute inset-0 z-[1] pointer-events-none">

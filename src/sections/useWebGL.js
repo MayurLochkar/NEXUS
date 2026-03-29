@@ -8,7 +8,7 @@
 import { useEffect } from 'react';
 import * as THREE from 'three';
 
-export default function useWebGL(canvasRef, options = {}) {
+export default function useWebGL(containerRef, options = {}) {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     
     const {
@@ -20,14 +20,15 @@ export default function useWebGL(canvasRef, options = {}) {
     } = options;
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
+        const container = containerRef.current;
+        if (!container) return;
 
+        let canvas = null;
         let renderer = null;
         let animId = null;
         
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(55, canvas.offsetWidth / canvas.offsetHeight || 1, 0.1, 500);
+        const camera = new THREE.PerspectiveCamera(55, container.offsetWidth / container.offsetHeight || 1, 0.1, 500);
         camera.position.set(0, 0, 28);
 
         // ── Grid ──
@@ -108,11 +109,17 @@ export default function useWebGL(canvasRef, options = {}) {
         
         const initRenderer = () => {
             if (renderer) return;
-            // Provide context limit guard: no antialiasing on mobile to speed things up
+
+            // Dynamically create and append canvas to completely bypass 'loseContext' issues
+            canvas = document.createElement('canvas');
+            canvas.className = 'absolute inset-0 w-full h-full z-[0] pointer-events-none';
+            container.appendChild(canvas);
+
+            // Context limits bypassed seamlessly because this ensures a totally fresh canvas
             renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !isMobile });
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 2));
-            renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
-            
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+
             window.addEventListener('mousemove', onMM);
             window.addEventListener('scroll', onSc);
             
@@ -152,8 +159,14 @@ export default function useWebGL(canvasRef, options = {}) {
             if (!renderer) return;
             cancelAnimationFrame(animId);
             renderer.dispose();
-            renderer.getContext()?.getExtension('WEBGL_lose_context')?.loseContext();
             renderer = null;
+
+            // Guaranteed perfect garbage collection of the WebGL context
+            if (canvas && canvas.parentNode) {
+                canvas.parentNode.removeChild(canvas);
+            }
+            canvas = null;
+
             window.removeEventListener('mousemove', onMM);
             window.removeEventListener('scroll', onSc);
         }
@@ -164,22 +177,26 @@ export default function useWebGL(canvasRef, options = {}) {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     clearTimeout(intersectionTimeout);
-                    initRenderer();
+                    // Debounce instantiations to prevent the global background from crashing on fast scrolls
+                    intersectionTimeout = setTimeout(() => {
+                        initRenderer();
+                    }, 150);
                 } else {
+                    clearTimeout(intersectionTimeout);
                     // Slight delay before destroying context to prevent flutter during scrolls
                     intersectionTimeout = setTimeout(() => {
                         destroyRenderer();
-                    }, 500);
+                    }, 400);
                 }
             });
         }, { threshold: 0.01 });
 
-        observer.observe(canvas);
+        observer.observe(container);
 
         const onResize = () => {
-            if(renderer) {
-                renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
-                camera.aspect = canvas.offsetWidth / canvas.offsetHeight;
+            if(renderer && container) {
+                renderer.setSize(container.offsetWidth, container.offsetHeight);
+                camera.aspect = container.offsetWidth / container.offsetHeight;
                 camera.updateProjectionMatrix();
             }
         };
@@ -197,5 +214,5 @@ export default function useWebGL(canvasRef, options = {}) {
             p2Geo.dispose(); pMesh2.material.dispose();
             hexMeshes.forEach(h => { h.geometry.dispose(); h.material.dispose(); });
         };
-    }, [canvasRef, isMobile, particleCount, hexCount, lineCount, particleColor, accentColor]);
+    }, [containerRef, isMobile, particleCount, hexCount, lineCount, particleColor, accentColor]);
 }

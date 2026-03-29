@@ -27,7 +27,9 @@ function AnimatedSoldier({ progressRef }) {
     Box(sg, .5, .5, .5, M(0x0a0a0a, { metalness: 1 }), 0, 1.4, 0);
     Box(sg, .42, .12, .05, ME(0xFF003C, 10), 0, 1.45, .26);
     Cyl(sg, .52, .38, 1.15, 8, M(0x080810, { metalness: .92 }), 0, .9, 0);
-    sg.add(new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.4, 0.3), M(0x000)).position.set(0.44, 0.6, 0.48));
+    const extraBox = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.4, 0.3), M(0x000));
+    extraBox.position.set(0.44, 0.6, 0.48);
+    sg.add(extraBox);
 
     return () => { scene.remove(sg); };
   }, [scene]);
@@ -76,7 +78,7 @@ export default function About() {
     <section id="about" ref={secRef} className="relative w-full min-h-screen py-32 px-6 md:px-12 bg-[#010103] overflow-hidden flex flex-col items-center justify-center">
 
       {/* BACKGROUND LAYERS */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 opacity-40" />
+      <div ref={canvasRef} className="absolute inset-0 w-full h-full z-[0] pointer-events-none" />
       <div className="absolute inset-0 z-[1] pointer-events-none opacity-30">
         <Canvas dpr={[1, 2]}>
           <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={40} />

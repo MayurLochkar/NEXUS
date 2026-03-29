@@ -144,7 +144,7 @@ export default function Hero() {
       onMouseLeave={handleMouseLeave}
     >
       {/* WebGL bg canvas */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 pointer-events-none" />
+      <div ref={canvasRef} className="absolute inset-0 w-full h-full z-[0] pointer-events-none" />
 
       {/* R3F soldier canvas layered on top */}
       <div className="absolute inset-0 z-[1] pointer-events-none">

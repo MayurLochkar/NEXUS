@@ -59,7 +59,7 @@ export default function Prizes() {
   return (
     <section id="prizes" ref={secRef} className="relative w-full py-32 px-6 bg-[#020205] overflow-hidden">
 
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 pointer-events-none" />
+      <div ref={canvasRef} className="absolute inset-0 w-full h-full z-[0] pointer-events-none" />
 
       {/* Ambient blobs */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[800px] h-[400px] pointer-events-none z-[1]" style={{ background: 'radial-gradient(ellipse,rgba(255,230,0,.06),transparent 70%)' }} />

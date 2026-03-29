@@ -69,7 +69,7 @@ export default function Contact() {
   return (
     <section id="contact" ref={secRef} className="relative py-32 px-6 bg-[#020205] overflow-hidden">
 
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 pointer-events-none" />
+      <div ref={canvasRef} className="absolute inset-0 w-full h-full z-[0] pointer-events-none" />
 
       {/* Grid */}
       <div className="absolute inset-0 pointer-events-none z-[1] opacity-[.03]" style={{

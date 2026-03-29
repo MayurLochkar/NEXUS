@@ -169,7 +169,7 @@ export default function Tracks() {
   return (
     <section id="tracks" ref={secRef} className="relative w-full min-h-screen py-32 px-6 md:px-12 bg-[#010103] overflow-hidden flex flex-col items-center">
 
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 pointer-events-none" />
+      <div ref={canvasRef} className="absolute inset-0 w-full h-full z-[0] pointer-events-none" />
 
       <div className="absolute inset-0 z-[1] pointer-events-none">
         <Canvas dpr={[1, 2]}>

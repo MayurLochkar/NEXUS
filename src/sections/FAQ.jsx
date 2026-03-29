@@ -55,7 +55,7 @@ export default function FAQ() {
   return (
     <section id="faq" ref={secRef} className="relative w-full py-24 px-5 bg-[#020205] overflow-hidden">
 
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 pointer-events-none" />
+      <div ref={canvasRef} className="absolute inset-0 w-full h-full z-[0] pointer-events-none" />
 
       {/* Grid overlay */}
       <div className="absolute inset-0 z-[1] pointer-events-none opacity-[.04]" style={{
