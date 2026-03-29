@@ -111,10 +111,10 @@ export default function Contact() {
               <div className="w-2.5 h-2.5 rounded-full bg-[#FFE600]" style={{ boxShadow: '0 0 10px #FFE600' }} />
               <div className="w-2.5 h-2.5 rounded-full bg-[#00FF88]" style={{ boxShadow: '0 0 10px #00FF88' }} />
             </div>
-            <span className="font-mono text-[10px] text-[rgba(0,240,255,.5)] tracking-widest uppercase truncate ml-4">{typedCmd}</span>
+            <span className="font-mono text-[10px] text-[rgba(0,240,255,.5)] tracking-widest uppercase truncate max-w-[160px] sm:max-w-none ml-4 overflow-hidden">{typedCmd}</span>
           </div>
 
-          <form className="p-8 md:p-12 space-y-8" onSubmit={handleSubmit}>
+          <form className="p-4 md:p-12 space-y-6 md:space-y-8" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <label className={lbl}>{'>'} TEAM_IDENTIFIER *</label>

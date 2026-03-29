@@ -62,7 +62,7 @@ export default function Prizes() {
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 pointer-events-none" />
 
       {/* Ambient blobs */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] pointer-events-none z-[1]" style={{ background: 'radial-gradient(ellipse,rgba(255,230,0,.06),transparent 70%)' }} />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[800px] h-[400px] pointer-events-none z-[1]" style={{ background: 'radial-gradient(ellipse,rgba(255,230,0,.06),transparent 70%)' }} />
       {/* Subtle grid */}
       <div className="absolute inset-0 pointer-events-none z-[1] opacity-[.025]" style={{
         backgroundImage: 'linear-gradient(rgba(255,230,0,1)1px,transparent 1px),linear-gradient(90deg,rgba(255,230,0,1)1px,transparent 1px)',

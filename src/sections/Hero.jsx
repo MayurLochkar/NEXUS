@@ -180,8 +180,8 @@ export default function Hero() {
         <div key={i} className={`absolute z-10 pointer-events-none w-14 h-14 border-[rgba(0,240,255,.55)] ${c}`} />
       ))}
 
-      {/* Right HUD */}
-      <div className="absolute right-7 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-2.5 pointer-events-none">
+      {/* Right HUD - hidden on mobile */}
+      <div className="absolute right-7 top-1/2 -translate-y-1/2 z-10 flex-col gap-2.5 pointer-events-none hidden md:flex">
         {[{ c: '#00F0FF', l: 'NODE_ACTIVE', d: '0s' }, { c: '#FF2D9B', l: 'FIREWALL_DOWN', d: '.5s' }, { c: '#FCEE0A', l: 'UPLINK_STABLE', d: '1s' }, { c: '#00F0FF', l: 'COMBAT_READY', d: '.3s' }].map(({ c, l, d }) => (
           <div key={l} className="flex items-center gap-2" style={{ fontFamily: "'Share Tech Mono',monospace", fontSize: 9, color: 'rgba(0,240,255,.45)', letterSpacing: '.12em' }}>
             <span className="w-[5px] h-[5px] rounded-full animate-pulse" style={{ background: c, animationDelay: d }} />
@@ -191,37 +191,37 @@ export default function Hero() {
       </div>
 
       {/* CONTENT */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-14 pointer-events-none">
-        <div className="w-full lg:w-[56%] flex flex-col items-start">
-          <div className="t-line font-mono text-[11px] tracking-[.26em] text-[#00F0FF] mb-6 opacity-90" style={{ fontFamily: "'Share Tech Mono',monospace" }}>
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 md:px-14 pointer-events-none">
+        <div className="w-full lg:w-[56%] flex flex-col items-center md:items-start text-center md:text-left">
+          <div className="t-line font-mono text-[10px] md:text-[11px] tracking-[.2em] md:tracking-[.26em] text-[#00F0FF] mb-4 md:mb-6 opacity-90" style={{ fontFamily: "'Share Tech Mono',monospace" }}>
             {'>'} INITIATING_UPLINK // SOLDIER_READY <span className="inline-block w-2 h-[13px] bg-[#00F0FF] ml-1 animate-pulse" />
           </div>
-          <h1 style={{ fontFamily: "'Orbitron',sans-serif" }} className="font-black leading-[.88] mb-6 uppercase select-none">
+          <h1 style={{ fontFamily: "'Orbitron',sans-serif" }} className="font-black leading-[.88] mb-5 md:mb-6 uppercase select-none">
             {['HACK', 'THE'].map(w => (
-              <span key={w} className="hero-word block" style={{ fontSize: 'clamp(48px,8.5vw,108px)', color: '#fff', textShadow: '0 0 30px rgba(255,255,255,.15)' }}>
+              <span key={w} className="hero-word block" style={{ fontSize: 'clamp(40px,8.5vw,108px)', color: '#fff', textShadow: '0 0 30px rgba(255,255,255,.15)' }}>
                 {w}
               </span>
             ))}
-            <span className="hw-accent block" style={{ fontSize: 'clamp(48px,8.5vw,108px)', color: 'transparent', WebkitTextStroke: '2px #FF2D9B', filter: 'drop-shadow(0 0 22px rgba(255,45,155,.55))' }}>
+            <span className="hw-accent block" style={{ fontSize: 'clamp(40px,8.5vw,108px)', color: 'transparent', WebkitTextStroke: '2px #FF2D9B', filter: 'drop-shadow(0 0 22px rgba(255,45,155,.55))' }}>
               SYSTEM
             </span>
           </h1>
-          <p className="hero-sub max-w-xl leading-relaxed mb-9" style={{ fontFamily: "'Rajdhani',sans-serif", fontSize: 'clamp(14px,1.5vw,19px)', color: 'rgba(200,205,230,.72)' }}>
+          <p className="hero-sub max-w-xl leading-relaxed mb-7 md:mb-9" style={{ fontFamily: "'Rajdhani',sans-serif", fontSize: 'clamp(13px,1.5vw,19px)', color: 'rgba(200,205,230,.72)' }}>
             "NEXUS is India's premier national-level tactical hackathon. Join 2500+ elite minds across the country to override legacy systems, bypass security clusters, and engineer the future of the digital frontier. The grand bounty awaits the ultimate architects."
           </p>
-          <div className="flex flex-wrap gap-3 mb-11">
+          <div className="flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-11 justify-center md:justify-start">
               {[{ t: 'COMBAT_ZONE', b: 'rgba(255,45,155,.35)', bg: 'rgba(255,45,155,.07)' }, { t: '$50,000 BOUNTY', b: 'rgba(0,240,255,.35)', bg: 'rgba(0,240,255,.07)' }, { t: 'GLOBAL_NODES', b: 'rgba(255,45,155,.25)', bg: 'rgba(255,45,155,.05)' }, { t: 'NO_LIMITS', b: 'rgba(252,238,10,.28)', bg: 'rgba(252,238,10,.05)' }].map(({ t, b, bg }) => (
-                <span key={t} className="hero-badge text-white/80 uppercase" style={{ fontFamily: "'Share Tech Mono',monospace", fontSize: 10, letterSpacing: '.17em', padding: '8px 16px', border: `1px solid ${b}`, background: bg, clipPath: 'polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)' }}>
+                <span key={t} className="hero-badge text-white/80 uppercase" style={{ fontFamily: "'Share Tech Mono',monospace", fontSize: 9, letterSpacing: '.14em', padding: '7px 12px', border: `1px solid ${b}`, background: bg, clipPath: 'polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)' }}>
                   {t}
                 </span>
               ))}
             </div>
-            <div className="flex flex-wrap gap-5 pointer-events-auto">
+            <div className="flex flex-wrap gap-4 md:gap-5 pointer-events-auto justify-center md:justify-start">
               <MagneticButton className="hero-btn" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-                style={{ fontFamily: "'Orbitron',sans-serif", padding: '17px 46px', background: '#00F0FF', color: '#000', fontSize: 12, fontWeight: 800, letterSpacing: 2, clipPath: 'polygon(13px 0,100% 0,100% calc(100% - 13px),calc(100% - 13px) 100%,0 100%,0 13px)', boxShadow: '0 0 40px rgba(0,240,255,.6),0 0 80px rgba(0,240,255,.18)', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>
+                style={{ fontFamily: "'Orbitron',sans-serif", padding: '14px 32px', background: '#00F0FF', color: '#000', fontSize: 11, fontWeight: 800, letterSpacing: 2, clipPath: 'polygon(13px 0,100% 0,100% calc(100% - 13px),calc(100% - 13px) 100%,0 100%,0 13px)', boxShadow: '0 0 40px rgba(0,240,255,.6),0 0 80px rgba(0,240,255,.18)', textTransform: 'uppercase', border: 'none', cursor: 'pointer' }}>
                 Initialize_
               </MagneticButton>
-              <button className="hero-btn text-white/60 uppercase transition-all hover:text-[#FF2D9B] hover:border-[#FF2D9B]" style={{ fontFamily: "'Share Tech Mono',monospace", fontSize: 10, letterSpacing: '.14em', padding: '15px 28px', background: 'transparent', border: '1px solid rgba(255,255,255,.2)', cursor: 'pointer' }} onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}>
+              <button className="hero-btn text-white/60 uppercase transition-all hover:text-[#FF2D9B] hover:border-[#FF2D9B]" style={{ fontFamily: "'Share Tech Mono',monospace", fontSize: 10, letterSpacing: '.14em', padding: '12px 24px', background: 'transparent', border: '1px solid rgba(255,255,255,.2)', cursor: 'pointer' }} onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}>
                 View Protocol
               </button>
             </div>
@@ -229,14 +229,13 @@ export default function Hero() {
       </div>
 
       {/* Stats footer */}
-      <div className="absolute bottom-0 left-0 w-full flex justify-around items-center border-t border-[#00F0FF]/10 px-8 py-[18px] z-20 bg-black/60 backdrop-blur-xl">
+      <div className="absolute bottom-0 left-0 w-full grid grid-cols-2 md:flex md:justify-around items-center border-t border-[#00F0FF]/10 px-4 md:px-8 py-3 md:py-[18px] z-20 bg-black/60 backdrop-blur-xl">
         {stats.map((s, i) => (
-          <div key={s.label} className="hero-stat flex flex-col items-center gap-1">
-            {i > 0 && <div className="absolute w-px h-9 bg-[#00F0FF]/12" />}
-            <span className="font-black text-white tracking-tight" style={{ fontFamily: "'Orbitron',sans-serif", fontSize: 'clamp(22px,3.5vw,40px)', textShadow: '0 0 18px rgba(255,255,255,.2)' }}>
+          <div key={s.label} className="hero-stat flex flex-col items-center gap-1 py-2 md:py-0">
+            <span className="font-black text-white tracking-tight" style={{ fontFamily: "'Orbitron',sans-serif", fontSize: 'clamp(18px,3.5vw,40px)', textShadow: '0 0 18px rgba(255,255,255,.2)' }}>
               {s.num}
             </span>
-            <span className="uppercase" style={{ fontFamily: "'Share Tech Mono',monospace", fontSize: 9, color: '#00F0FF', letterSpacing: '.22em', opacity: .8 }}>
+            <span className="uppercase" style={{ fontFamily: "'Share Tech Mono',monospace", fontSize: 8, color: '#00F0FF', letterSpacing: '.18em', opacity: .8 }}>
               {s.label}
             </span>
           </div>

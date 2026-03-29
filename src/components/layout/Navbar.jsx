@@ -58,10 +58,10 @@ export default function Navbar() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         style={{
-          position: 'fixed', top: scrolled ? 10 : 0, left: scrolled ? '5%' : 0, right: scrolled ? '5%' : 0,
+          position: 'fixed', top: scrolled ? 8 : 0, left: scrolled ? '3%' : 0, right: scrolled ? '3%' : 0,
           zIndex: 500, background: scrolled ? 'rgba(5, 5, 16, 0.95)' : 'rgba(5, 5, 16, 0.4)',
           backdropFilter: 'blur(20px)', borderRadius: scrolled ? 50 : 0,
-          padding: scrolled ? '10px 25px' : '20px 40px',
+          padding: scrolled ? '8px 16px' : '14px 20px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
           borderBottom: scrolled ? '1px solid rgba(0, 240, 255, 0.2)' : '1px solid rgba(255, 255, 255, 0.05)',
@@ -105,11 +105,12 @@ export default function Navbar() {
           </button>
 
           <button onClick={() => scrollTo('#contact')} style={{
-            fontFamily: 'Orbitron, sans-serif', fontSize: 9, fontWeight: 800, padding: '10px 18px',
+            fontFamily: 'Orbitron, sans-serif', fontSize: 9, fontWeight: 800, padding: '8px 14px',
             background: '#FF003C', color: '#fff', border: 'none', cursor: 'pointer',
-            clipPath: 'polygon(8px 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%)', textTransform: 'uppercase'
+            clipPath: 'polygon(8px 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%)', textTransform: 'uppercase',
+            whiteSpace: 'nowrap'
           }}>
-            Register_
+            Reg_
           </button>
         </div>
       </motion.nav>

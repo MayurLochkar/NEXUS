@@ -138,7 +138,7 @@ export default function About() {
             { val: 'INDIA', label: 'COMMAND_ZONE', col: '#FFE600', desc: 'Multi-state connectivity' },
             { val: '48HRS', label: 'EXECUTION_TIME', col: '#00FF88', desc: 'Uninterrupted hacking' },
           ].map((s, i) => (
-            <div key={i} className="stat-card-box group relative p-10 bg-white/[0.03] border border-white/10 backdrop-blur-xl transition-all duration-500 hover:border-cyber-cyan/40 hover:-translate-y-2">
+            <div key={i} className="stat-card-box group relative p-6 md:p-10 bg-white/[0.03] border border-white/10 backdrop-blur-xl transition-all duration-500 hover:border-cyber-cyan/40 hover:-translate-y-2">
               <div className="absolute top-0 left-0 w-2 h-2 border-t border-l" style={{ borderColor: s.col }} />
               <div className="font-orbitron font-black text-4xl md:text-5xl mb-2" style={{ color: s.col, textShadow: `0 0 15px ${s.col}50` }}>
                 {s.val}

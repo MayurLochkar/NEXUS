@@ -153,7 +153,7 @@ export default function Timeline() {
       <div className="relative z-10 max-w-6xl mx-auto px-6">
 
         {/* Header */}
-        <div className="flex flex-col items-center mb-32">
+        <div className="flex flex-col items-center mb-16 md:mb-32">
           <div className="tl-header-reveal flex items-center gap-3 mb-6">
             <span className="font-mono text-[10px] text-[#FF003C] bg-[rgba(255,0,60,.05)] border border-[rgba(255,0,60,.2)] px-4 py-1 tracking-[0.4em] font-bold uppercase">
               // CHRONOLOGY_STABLE_V2
@@ -182,7 +182,7 @@ export default function Timeline() {
 
                 {/* Card */}
                 <div className={`tl-card-anim w-full pl-16 md:pl-0 md:w-[45%] ${ev.align === 'left' ? 'md:mr-auto' : 'md:ml-auto'} group cursor-default`}>
-                  <div className="relative p-8 bg-black/70 backdrop-blur-xl border border-white/10 rounded-sm transition-all duration-500 hover:border-white/30 hover:-translate-y-2">
+                  <div className="relative p-5 md:p-8 bg-black/70 backdrop-blur-xl border border-white/10 rounded-sm transition-all duration-500 hover:border-white/30 hover:-translate-y-2">
                     <div className="absolute top-0 left-0 right-0 h-[1px]" style={{ background: `linear-gradient(90deg, ${ev.color}, transparent)` }} />
 
                     <div className="flex justify-between items-center mb-4">

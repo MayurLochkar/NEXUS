@@ -224,8 +224,8 @@ export default function Tracks() {
             const sN = '0 8px 32px -8px rgba(0,0,0,.85)'; const sH = `0 0 44px rgba(${rgb},.22),inset 0 0 22px rgba(${rgb},.07)`;
             return (
               <div key={`${locale}-${i}`} className="trk-card-item">
-                <TiltCard className="h-[460px]">
-                  <div className="relative h-full bg-[rgba(5,5,12,.82)] backdrop-blur-xl rounded-xl overflow-hidden flex flex-col p-8 group transition-all duration-400"
+                <TiltCard className="min-h-[360px] md:h-[460px]">
+                  <div className="relative h-full bg-[rgba(5,5,12,.82)] backdrop-blur-xl rounded-xl overflow-hidden flex flex-col p-5 md:p-8 group transition-all duration-400"
                     style={{ border: bN, boxShadow: sN, '--c': color }}
                     onMouseEnter={e => { const el = e.currentTarget; el.style.border = bH; el.style.background = `linear-gradient(175deg,rgba(${rgb},.12) 0%,rgba(5,5,12,.92) 100%)`; el.style.boxShadow = sH; }}
                     onMouseLeave={e => { const el = e.currentTarget; el.style.border = bN; el.style.background = 'rgba(5,5,12,.82)'; el.style.boxShadow = sN; }}

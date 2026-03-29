@@ -32,15 +32,16 @@ export default function FloatingDock() {
       animate={{ y: 0,   opacity: 1 }}
       transition={{ delay: 1, duration: 0.6, ease: 'easeOut' }}
       style={{
-        position: 'fixed', bottom: 24, left: '50%',
+        position: 'fixed', bottom: 20, left: '50%',
         transform: 'translateX(-50%)', zIndex: 400,
         background: 'rgba(5,5,16,0.85)',
         backdropFilter: 'blur(20px)',
         border: '1px solid rgba(0,240,255,0.15)',
-        padding: '10px 20px',
-        display: 'flex', gap: 6, alignItems: 'flex-end',
+        padding: '8px 12px',
+        display: 'flex', gap: 4, alignItems: 'flex-end',
         clipPath: 'polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)',
         boxShadow: '0 0 30px rgba(0,240,255,0.08)',
+        maxWidth: 'calc(100vw - 32px)',
       }}
     >
       {items.map(item => (
@@ -75,13 +76,14 @@ export default function FloatingDock() {
             whileTap={{ scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 400, damping: 18 }}
             style={{
-              width: 44, height: 44,
+              width: 'clamp(32px,8vw,44px)', height: 'clamp(32px,8vw,44px)',
               background: hovered === item.id ? `${item.color}15` : 'transparent',
               border: `1px solid ${hovered === item.id ? item.color : 'rgba(255,255,255,0.08)'}`,
-              borderRadius: 10, cursor: 'pointer',
+              borderRadius: 8, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: hovered === item.id ? item.color : 'rgba(255,255,255,0.4)',
               transition: 'background 0.2s, border 0.2s, color 0.2s',
+              flexShrink: 0,
             }}>
             {item.icon}
           </motion.button>

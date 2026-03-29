@@ -61,7 +61,7 @@ export default function MainPage() {
   }, [loading])
 
   return (
-    <div className="relative bg-[#010103] selection:bg-cyber-cyan selection:text-black">
+    <div className="relative bg-[#010103] selection:bg-cyber-cyan selection:text-black overflow-x-hidden">
 
       {/* 1. Global Preloader & Cursor */}
       <CustomCursor />
